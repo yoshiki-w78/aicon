@@ -39,8 +39,7 @@
 ---
 
 ## 2. スクリーンショット
-
-
+![AIcon UI – ホーム画面](docs/screenshots/aicon-demo.png)
 
 ---
 
@@ -55,6 +54,8 @@ http://localhost:8080
 ```
 - 何も設定しなくても プレースホルダ画像 が表示されます（デモ安全モード）。
 - 実画像生成を使いたい場合は「4. 設定」をご覧ください。
+
+---
 
 
 ## 4. 設定（画像生成の有効化）
@@ -120,6 +121,7 @@ stripe.webhook-secret=${STRIPE_WEBHOOK_SECRET:}
    - `size` は `1024x1024` / `1024x1536` / `1536x1024` を使用
    - 一部モデルは**組織の検証（Verify）**が必要な場合あり
 
+---
 
 ## 5.API
 
@@ -139,7 +141,7 @@ curl -X POST http://localhost:8080/api/icons/generate \
   }'
 ```
 
----
+
 
 ### `.env.example`（鍵は絶対コミットしない）
 
@@ -164,11 +166,15 @@ GITHUB_CLIENT_ID=
 GITHUB_CLIENT_SECRET=
 ```
 
+---
+
 ## 6.開発メモ（ローカル）
 - 起動: `./mvnw spring-boot:run`
 - アプリ: http://localhost:8080
 - H2 Console: http://localhost:8080/h2-console  
   - JDBC: `jdbc:h2:mem:aicondb` / User: `sa` / Password: 空
+ 
+---
 
 ## 7.今後の展望
 - 生成結果のギャラリー保存（DB化/永続化）
@@ -176,6 +182,7 @@ GITHUB_CLIENT_SECRET=
 - 課金（Stripe）による生成回数拡張
 - CI/CD & 本番デプロイ
 
+---
 
 ## 8.License & Credits
 - Code: MIT
