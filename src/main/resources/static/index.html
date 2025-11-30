@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <title>AIcon｜AIアイコン自動生成ツール</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+          name="description"
+          content="AIconは、AIアシスタントとのチャットからプロンプトを作成し、そのままAIアイコン案を生成できるツールです。"
+  />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/aicon.css" />
+</head>
+<body class="aicon-page">
+<header class="aicon-header">
+  <div class="flex flex-col gap-1">
+    <div class="flex items-center gap-2">
+      <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-indigo-600/80 text-[10px] font-semibold">
+        ◎
+      </span>
+      <h1 class="text-lg md:text-xl font-semibold tracking-tight">AIcon</h1>
+    </div>
+    <p class="text-[11px] md:text-xs text-slate-400 leading-snug">
+      <span class="text-slate-100 font-medium">AIアシスタントと対話しながら</span>、
+      最適なアイコン用プロンプトを作成して、その場で結果を確認できます。
+    </p>
+    <p class="text-[9px] md:text-[10px] text-slate-500">
+      Team ショートカットサバイバル
+    </p>
+  </div>
+  <div class="flex items-center gap-2 md:gap-3">
+    <button
+            class="px-3 py-1.5 rounded-full text-[10px] border border-indigo-500/50 text-indigo-300
+             bg-slate-900/90 hover:bg-indigo-500 hover:text-white transition shadow-md"
+            onclick="location.href='/settings.html'"
+    >
+      ⚙ 設定
+    </button>
+    <button id="login-btn"
+            class="btn-ghost"
+            style="display:none;">
+      GitHubでログイン
+    </button>
+    <button id="logout-btn"
+            class="btn-header btn-header-secondary"
+            style="display:none;">
+      ↩ ログアウト
+    </button>
+    <span id="plan-label"
+          class="text-[9px] text-emerald-400 hidden">
+      Pro
+    </span>
+  </div>
+</header>
+
+<main class="flex-1 px-4 md:px-6 py-4 grid gap-4 md:grid-cols-2 main-layout">
+  <section class="aicon-panel panel-chat">
+    <div class="flex flex-col gap-1">
+      <h2 class="text-sm md:text-base font-semibold text-slate-100">AIアシスタント</h2>
+      <p class="text-[10px] md:text-xs text-slate-400">
+        プロンプト作成をサポートします。作りたいアイコンのイメージを自由に伝えてください。
+      </p>
+    </div>
+    <div id="chat-window" class="chat-window"></div>
+    <div class="chat-input-row">
+      <textarea id="chat-input" class="chat-input"
+                placeholder="例）青系でシンプルなAIアシスタント用アイコンを作りたい"></textarea>
+      <button id="chat-send-btn" class="btn-chat">送信</button>
+    </div>
+    <p class="text-[9px] text-slate-500 mt-1">
+      ※ Enterで改行、右の「送信」ボタンでメッセージを送信できます。
+    </p>
+    <p class="text-[9px] text-slate-500">
+      ※ AI提案の下の「このままプロンプト生成」で右側に反映できます。
+    </p>
+  </section>
+
+  <section class="aicon-panel panel-editor">
+    <div class="flex flex-col gap-1">
+      <h2 class="text-sm md:text-base font-semibold text-slate-100">プロンプト編集</h2>
+      <p class="text-[10px] md:text-xs text-slate-400">
+        チャットで提案された英語プロンプトをベースに、画像生成に使う最終プロンプトを整えます。
+      </p>
+    </div>
+
+    <div class="flex flex-wrap items-end gap-2 md:gap-3">
+      <div class="flex flex-col gap-1">
+        <label for="size-select" class="text-[9px] text-slate-400">画像サイズ</label>
+        <select id="size-select" class="w-[130px] px-2 py-1.5 rounded-lg bg-slate-950/90 border border-slate-800
+                   text-[10px] text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500/70">
+          <option value="512x512">512 × 512</option>
+          <option value="768x768">768 × 768</option>
+          <option value="1024x1024">1024 × 1024</option>
+        </select>
+      </div>
+      <div class="flex flex-col gap-1">
+        <label for="style-select" class="text-[9px] text-slate-400">スタイル</label>
+        <select id="style-select" class="w-[130px] px-2 py-1.5 rounded-lg bg-slate-950/90 border border-slate-800
+                   text-[10px] text-slate-100 focus:outline-none focus:ring-1 focus:ring-indigo-500/70">
+          <option value="">指定なし</option>
+          <option value="minimal">Minimal</option>
+          <option value="flat">Flat</option>
+          <option value="gradient">Gradient</option>
+          <option value="outline">Outline</option>
+          <option value="neon">Neon</option>
+        </select>
+      </div>
+      <button id="reset-prompt-btn"
+              class="ml-auto px-2.5 py-1.5 rounded-lg border border-slate-700
+               text-[9px] text-slate-400 hover:bg-slate-800 hover:text-slate-100 transition">
+        リセット
+      </button>
+    </div>
+
+    <div class="flex flex-col gap-1 mt-1">
+      <span class="text-[9px] text-slate-400">最終プロンプト（編集可）</span>
+      <span class="text-[9px] text-slate-500">
+        チャットで提案された英語プロンプトをここに反映し、必要に応じて書き換えてください。
+      </span>
+      <textarea id="final-prompt"
+                class="w-full px-2.5 py-2 rounded-xl bg-slate-950/90 border border-slate-800
+               text-[11px] text-slate-100 placeholder:text-slate-500
+               focus:outline-none focus:ring-1 focus:ring-indigo-500/70 min-h-[80px]"
+                placeholder="A modern minimalist blue AI assistant icon..."></textarea>
+    </div>
+
+    <button id="generate-btn" class="btn-primary mt-1">
+      ⚡ アイコンを生成
+    </button>
+
+    <p id="error-msg" class="text-[9px] text-rose-400 mt-0.5"></p>
+
+    <div class="mt-2 flex items-center justify-between gap-2">
+      <h3 class="text-[11px] md:text-sm font-semibold text-slate-100">生成結果</h3>
+      <button id="download-btn"
+              class="px-3 py-1.5 rounded-lg text-[9px]
+               border border-slate-700 bg-slate-950/90 text-slate-500
+               disabled:opacity-40 disabled:cursor-not-allowed
+               hover:border-indigo-500 hover:text-indigo-300 hover:bg-slate-900/90
+               transition inline-flex items-center gap-1"
+              disabled>
+        ⬇ 選択中のアイコンをダウンロード
+      </button>
+    </div>
+
+    <div id="icons-grid" class="icons-grid">
+      <div class="col-span-2 px-3 py-3 rounded-xl bg-slate-950/60 border border-slate-900 text-[9px] text-slate-500">
+        <p class="text-slate-300 font-medium mb-1">まだアイコンは表示されていません</p>
+        <p class="mb-1.5">
+          左のAIアシスタントと相談し、
+          <span class="text-indigo-400">「このままプロンプト生成」→「アイコンを生成」</span>
+          の流れで候補を表示できます。
+        </p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="flex items-center gap-2">
+    <span class="font-semibold text-slate-300">AIcon</span>
+    <span>Prompt to Icon Playground</span>
+  </div>
+  <div>Team ショートカットサバイバル</div>
+</footer>
+
+<script src="/js/app.js"></script>
+</body>
+</html>
